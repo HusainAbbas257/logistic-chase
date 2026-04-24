@@ -10,12 +10,17 @@ class Entity:
         self.color=color
         self.speed=5
         self.control=control
-    def update(self,keys:pygame.key.ScancodeWrapper,fps:float=60):
+    def update(self,keys:pygame.key.ScancodeWrapper,fps:float=60,width=1200,height=720):
         if(self.control!=None):
             self.keyboard_input(keys)
         fps=max(fps,0.01)
+        self.vx*=0.995
+        self.vy*=0.995
+
         self.x+=self.vx*(1/fps)
         self.y+=self.vy*(1/fps)
+        self.x%=width
+        self.y%=height
     def check_collision(self,other:'Entity'):
         return (math.dist((self.x,self.y),(other.x,other.y))<=1.05*(self.r+other.r)) if other!=self else False
     def reset(self):
@@ -32,11 +37,18 @@ class Entity:
             if keys[pygame.K_s]: self.vy += self.speed
             if keys[pygame.K_a]: self.vx -= self.speed
             if keys[pygame.K_d]: self.vx += self.speed
+            if keys[pygame.K_SPACE]:
+                self.vx *=0.925
+                self.vy*=0.925
         elif(type_=='arrow'):
             if keys[pygame.K_UP]: self.vy -= self.speed
             if keys[pygame.K_DOWN]: self.vy += self.speed
             if keys[pygame.K_LEFT]: self.vx -= self.speed
             if keys[pygame.K_RIGHT]: self.vx += self.speed
+
+            if keys[pygame.K_RSHIFT]:
+                self.vx *=0.925
+                self.vy*=0.925
         else:
             raise ValueError('the type speified for controls is not found:',type_)
             
