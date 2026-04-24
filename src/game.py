@@ -7,7 +7,7 @@ width,height=screen.get_width(),screen.get_height()
 clock=pygame.time.Clock()
 
 
-entities:Entity=[Entity((100,100),10)]
+entities:Entity=[Entity((100,100),10,control='wasd'),Entity((200,100),20,color="#09ff00",control='arrow')]
 def mainloop():
     running=True
     while running:
@@ -16,9 +16,10 @@ def mainloop():
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 running=False
+        keys=pygame.key.get_pressed()
         # updating:
         for entity in entities:
-            entity.update()
+            entity.update(keys,clock.get_fps())
             entity.draw(screen)
         
         # drawing
