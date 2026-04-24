@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 pygame.init()
 from src.entity import Entity
 screen=pygame.display.set_mode((1200,720),)
@@ -7,8 +8,10 @@ width,height=screen.get_width(),screen.get_height()
 clock=pygame.time.Clock()
 
 
-entities:Entity=[Entity((100,100),10,control='wasd'),Entity((200,100),20,color="#09ff00",control='arrow')]
 def mainloop():
+    # a note for myself first one is ai(enemy) and second one is human
+    entities:list[Entity]=[Entity((100,100),10,control='wasd'),Entity((500,700),20,color="#09ff00",control='arrow')]
+    data=[]
     running=True
     while running:
         screen.fill((0,0,0))
@@ -29,9 +32,10 @@ def mainloop():
        
         # drawing
         screen.blit(font.render(f'fps:{int(clock.get_fps())}',True,(100,100,100)),(10,10))
-            
+        data.append(frame_data(entities,keys))
         pygame.display.flip()
         clock.tick(60)
+    return data
 def endScreen():
     while True:
         screen.fill((0,0,0))
@@ -50,6 +54,7 @@ def endScreen():
         pygame.display.flip()
         clock.tick(60)
 
-
+def frame_data(entities:list[Entity],keys:pygame.key.ScancodeWrapper):
+    return np.array([entities[0].x,entities[0].y,entities[0].vx,entities[0].vy,entities[1].x,entities[1].y,entities[1].vx,entities[1].vy,int(keys[pygame.K_w]),int(keys[pygame.K_a]),int(keys[pygame.K_s]),int(keys[pygame.K_d]),int(keys[pygame.K_UP]),int(keys[pygame.K_LEFT]),int(keys[pygame.K_DOWN]),int(keys[pygame.K_RIGHT ])],dtype=np.int16)
 if __name__=='__main__':
     mainloop()
