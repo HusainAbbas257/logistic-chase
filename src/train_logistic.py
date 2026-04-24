@@ -23,7 +23,7 @@ print('training...')
 models=[LogisticRegression(max_iter=5000) for i in range(4)]
 for i in range(4):
     models[i].fit(x,ys[i])
-joblib.dump(models[i], f"models/{input('save to ->')}.pkl")
+joblib.dump(models, f"models/{input('save to ->')}.pkl")
 print('trained')
 
 for y,model in zip(ys,models):

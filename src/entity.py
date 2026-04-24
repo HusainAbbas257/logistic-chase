@@ -1,8 +1,9 @@
 import pygame
 import math
+import joblib
 
 class Entity:
-    def __init__(self,pos:tuple[int,int],radius:int,color="#dd0f0f",control:str=None):
+    def __init__(self,pos:tuple[int,int],radius:int,color="#dd0f0f",control:str=''):
         self.x,self.y=pos
         self.original=pos
         self.vx,self.vy=0,0
@@ -10,9 +11,12 @@ class Entity:
         self.color=color
         self.speed=5
         self.control=control
-    def update(self,keys:pygame.key.ScancodeWrapper,fps:float=60,width=1200,height=720):
-        if(self.control!=None):
-            self.keyboard_input(keys)
+        self.models=None
+        if self.control.endswith('.pkl'):
+            self.models=joblib.load(control)
+    def update(self,keys:pygame.key.ScancodeWrapper,entities:list['Entity'],fps:float=60,width=1200,height=720):
+        if(self.control!=''):
+            self.keyboard_input(keys,entities)
         fps=max(fps,0.01)
         self.vx*=0.995
         self.vy*=0.995
@@ -27,9 +31,9 @@ class Entity:
         self.x,self.y=self.original
         self.vx,self.vy=0,0
         self.speed=5
-    def keyboard_input(self,keys:pygame.key.ScancodeWrapper):
+    def keyboard_input(self,keys:pygame.key.ScancodeWrapper,entities:list['Entity']):
         type_=self.control
-        if type_==None:
+        if type_=='':
             type_='wasd'
         
         if type_=='wasd':
@@ -49,6 +53,12 @@ class Entity:
             if keys[pygame.K_RSHIFT]:
                 self.vx *=0.925
                 self.vy*=0.925
+        elif(type_.endswith('.pkl')):
+            pr=[model.predict([[entities[0].x,entities[0].y,entities[0].vx,entities[0].vy,entities[1].x,entities[1].y,entities[1].vx,entities[1].vy,int(keys[pygame.K_w]),int(keys[pygame.K_a]),int(keys[pygame.K_s]),int(keys[pygame.K_d])]]) for model in self.models]
+            if pr[0]: self.vy -= self.speed
+            if pr[1]: self.vy += self.speed
+            if pr[2]: self.vx -= self.speed
+            if pr[3]: self.vx += self.speed
         else:
             raise ValueError('the type speified for controls is not found:',type_)
             

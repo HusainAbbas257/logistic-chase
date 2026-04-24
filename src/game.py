@@ -10,7 +10,7 @@ clock=pygame.time.Clock()
 
 def mainloop():
     # a note for myself first one is ai(enemy) and second one is human
-    entities:list[Entity]=[Entity((100,100),10,control='wasd'),Entity((500,700),20,color="#09ff00",control='arrow')]
+    entities:list[Entity]=[Entity((100,100),10,control='wasd'),Entity((500,700),20,color="#09ff00",control='models/test1.pkl')]
     data=[]
     running=True
     while running:
@@ -22,7 +22,7 @@ def mainloop():
         keys=pygame.key.get_pressed()
         # updating:
         for entity in entities:
-            entity.update(keys,clock.get_fps())
+            entity.update(keys,entities,clock.get_fps())
             for other in entities:
                 if(entity.check_collision(other)):
                     running=endScreen()
