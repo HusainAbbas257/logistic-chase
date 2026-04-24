@@ -1,8 +1,10 @@
 import pygame
+import math
 
 class Entity:
     def __init__(self,pos:tuple[int,int],radius:int,color="#dd0f0f",control:str=None):
         self.x,self.y=pos
+        self.original=pos
         self.vx,self.vy=0,0
         self.r=radius
         self.color=color
@@ -14,6 +16,12 @@ class Entity:
         fps=max(fps,0.01)
         self.x+=self.vx*(1/fps)
         self.y+=self.vy*(1/fps)
+    def check_collision(self,other:'Entity'):
+        return (math.dist((self.x,self.y),(other.x,other.y))<=1.05*(self.r+other.r)) if other!=self else False
+    def reset(self):
+        self.x,self.y=self.original
+        self.vx,self.vy=0,0
+        self.speed=5
     def keyboard_input(self,keys:pygame.key.ScancodeWrapper):
         type_=self.control
         if type_==None:
