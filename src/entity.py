@@ -46,41 +46,42 @@ class Entity:
     # refactoring this up
     def keyboard_input(self, keys, entities):
         type_ = self.control or 'wasd'
-        moves = [0, 0, 0, 0]
+        moves = [0, 0, 0, 0]  # [up, down, left, right]
 
-        def apply(k_up, k_down, k_left, k_right, k_brake):
-            if keys[k_up]:   self.vy -= self.speed; moves[0]=1
-            if keys[k_down]: self.vy += self.speed; moves[1]=1
-            if keys[k_left]: self.vx -= self.speed; moves[2]=1
-            if keys[k_right]:self.vx += self.speed; moves[3]=1
-            if k_brake and keys[k_brake]:
-                self.vx *= 0.925; self.vy *= 0.925
+        def act(i, dvx=0, dvy=0):
+            if dvx: self.vx += dvx
+            if dvy: self.vy += dvy
+            moves[i] = 1
 
-        if type_ == 'wasd':
-            apply(pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_SPACE)
+        keymaps = {
+            'wasd':  (pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_SPACE),
+            'arrow': (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT)
+        }
 
-        elif type_ == 'arrow':
-            apply(pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT)
+        if type_ in keymaps:
+            ku,kd,kl,kr,kb = keymaps[type_]
+            if keys[ku]: act(0, dvy=-self.speed)
+            if keys[kd]: act(1, dvy= self.speed)
+            if keys[kl]: act(2, dvx=-self.speed)
+            if keys[kr]: act(3, dvx= self.speed)
+            if kb and keys[kb]: self.vx*=0.925; self.vy*=0.925
 
         elif type_ == 'auto':
             e = entities[0]
-            if e.x < self.x: self.vx -= self.speed; moves[2]=1
-            if e.x > self.x: self.vx += self.speed; moves[3]=1
-            if e.y < self.y: self.vy -= self.speed; moves[0]=1
-            if e.y > self.y: self.vy += self.speed; moves[1]=1
+            if e.y < self.y: act(0, dvy=-self.speed)
+            if e.y > self.y: act(1, dvy= self.speed)
+            if e.x < self.x: act(2, dvx=-self.speed)
+            if e.x > self.x: act(3, dvx= self.speed)
 
         elif type_.endswith('.pkl'):
-            e0, e1 = entities[0], entities[1]
-            inp = [[e0.x,e0.y,e0.vx,e0.vy,e1.x,e1.y,e1.vx,e1.vy,
-                    int(keys[pygame.K_w]),int(keys[pygame.K_a]),
-                    int(keys[pygame.K_s]),int(keys[pygame.K_d])]]
-
+            e0,e1 = entities[0], entities[1]
+            inp = [[e0.x,e0.y,e0.vx,e0.vy,e1.x,e1.y,e1.vx,e1.vy]]
             probs = [m.predict_proba(inp)[0][1] for m in self.models]
-
-            if probs[0] > self.threshold: self.vy += self.speed; moves[0]=1
-            if probs[1] > self.threshold: self.vy -= self.speed; moves[1]=1
-            if probs[2] > self.threshold: self.vx += self.speed; moves[2]=1
-            if probs[3] > self.threshold: self.vx -= self.speed; moves[3]=1
+            for i,(p,vec) in enumerate(zip(
+                probs,
+                [(0,-self.speed),(0,self.speed),(-self.speed,0),(self.speed,0)]
+            )):
+                if p > self.threshold: act(i, dvx=vec[0], dvy=vec[1])
         else:
             raise ValueError(f'Unknown control type: {type_}')
 

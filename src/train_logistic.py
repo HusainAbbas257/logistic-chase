@@ -8,7 +8,7 @@ print('libs loaded...')
 # load
 df=pd.read_csv(f'data/{input('enter file name->')}.csv')
 
-x=df[["ai x", "ai y", "ai vx",'ai vy',"human x", "human y", "human vx",'human vy','w','a','s','d']].values
+x=df[["ai x", "ai y", "ai vx",'ai vy',"human x", "human y", "human vx",'human vy']].values
 # for different directions
 ys=[df['up'].values,
     df['left'].values,
@@ -20,7 +20,7 @@ print('data loaded...')
 
 
 print('training...')
-models=[LogisticRegression(max_iter=5000,class_weight='balanced') for i in range(4)]
+models=[LogisticRegression(max_iter=50000) for i in range(4)]
 for i in range(4):
     models[i].fit(x,ys[i])
 joblib.dump(models, f"models/{input('save to ->')}.pkl")

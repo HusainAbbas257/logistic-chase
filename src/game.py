@@ -33,6 +33,7 @@ def mainloop(enemy_type='auto'):
        
         # drawing
         screen.blit(font.render(f'fps:{int(clock.get_fps())}',True,(100,100,100)),(10,10))
+        screen.blit(font.render(f'DATA COLLECTED:{len(data)}',True,(100,100,100)),(10,40))
         data.append(frame_data(entities,keys,moves[-1]))
         pygame.display.flip()
         clock.tick(60)
@@ -56,6 +57,6 @@ def endScreen():
         clock.tick(60)
 
 def frame_data(entities:list[Entity],keys:pygame.key.ScancodeWrapper,bot_moves:list[int]):
-    return np.array([entities[0].x,entities[0].y,entities[0].vx,entities[0].vy,entities[1].x,entities[1].y,entities[1].vx,entities[1].vy,int(keys[pygame.K_w]),int(keys[pygame.K_a]),int(keys[pygame.K_s]),int(keys[pygame.K_d]),bot_moves[0],bot_moves[1],bot_moves[2],bot_moves[3]],dtype=np.int16)
+    return np.array([entities[0].x,entities[0].y,entities[0].vx,entities[0].vy,entities[1].x,entities[1].y,entities[1].vx,entities[1].vy,bot_moves[0],bot_moves[1],bot_moves[2],bot_moves[3]],dtype=np.int16)
 if __name__=='__main__':
     mainloop()
