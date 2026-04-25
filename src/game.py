@@ -27,7 +27,6 @@ def mainloop(enemy_type='auto'):
             entity.update(keys,entities,clock.get_fps())
             for other in entities:
                 if(entity.check_collision(other)):
-                    running=endScreen()
                     entity.reset()
                     other.reset()
             entity.draw(screen)

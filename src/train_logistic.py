@@ -20,7 +20,7 @@ print('data loaded...')
 
 
 print('training...')
-models=[LogisticRegression(max_iter=5000) for i in range(4)]
+models=[LogisticRegression(max_iter=5000,class_weight='balanced') for i in range(4)]
 for i in range(4):
     models[i].fit(x,ys[i])
 joblib.dump(models, f"models/{input('save to ->')}.pkl")
