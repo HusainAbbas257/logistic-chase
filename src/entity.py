@@ -1,11 +1,11 @@
 import pygame
 import math
 import joblib
+import random
 
 class Entity:
-    def __init__(self,pos:tuple[int,int],radius:int,color="#dd0f0f",control:str=''):
-        self.x,self.y=pos
-        self.original=pos
+    def __init__(self,size:tuple[int,int],radius:int,color="#dd0f0f",control:str=''):
+        self.x,self.y=random.randint(radius,size[0]-radius),random.randint(radius,size[1]-radius)
         self.vx,self.vy=0,0
         self.r=radius
         self.color=color
@@ -14,7 +14,7 @@ class Entity:
         self.models=None
         if self.control.endswith('.pkl'):
             self.models=joblib.load(control)
-        self.threshold=0.3
+        self.threshold=0.6
     def update(self,keys:pygame.key.ScancodeWrapper,entities:list['Entity'],fps:float=60,width=1200,height=720):
         fps=max(fps,0.01)
         self.vx*=0.995
@@ -38,8 +38,8 @@ class Entity:
 
     def check_collision(self,other:'Entity'):
         return (math.dist((self.x,self.y),(other.x,other.y))<=1.05*(self.r+other.r)) if other!=self else False
-    def reset(self):
-        self.x,self.y=self.original
+    def reset(self,size:tuple[int,int]):
+        self.x,self.y=random.randint(self.r,size[0]-self.r),random.randint(self.r,size[1]-self.r)
         self.vx,self.vy=0,0
         self.speed=5
     

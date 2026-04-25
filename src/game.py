@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+
 pygame.init()
 from src.entity import Entity
 screen=pygame.display.set_mode((1200,720),)
@@ -9,8 +10,9 @@ clock=pygame.time.Clock()
 
 
 def mainloop(enemy_type='auto'):
+    score=0
     # a note for myself first one is ai(enemy) and second one is human
-    entities:list[Entity]=[Entity((100,100),10,control='wasd'),Entity((500,700),20,color="#09ff00",control=enemy_type)]
+    entities:list[Entity]=[Entity((width,height),10,control='wasd'),Entity((width,height),20,color="#09ff00",control=enemy_type)]
     data=[]
     running=True
     moves=[]
@@ -27,13 +29,15 @@ def mainloop(enemy_type='auto'):
             entity.update(keys,entities,clock.get_fps())
             for other in entities:
                 if(entity.check_collision(other)):
-                    entity.reset()
-                    other.reset()
+                    score+=1
+                    entity.reset((width,height))
+                    other.reset((width,height))
             entity.draw(screen)
        
         # drawing
         screen.blit(font.render(f'fps:{int(clock.get_fps())}',True,(100,100,100)),(10,10))
-        screen.blit(font.render(f'DATA COLLECTED:{len(data)}',True,(100,100,100)),(10,40))
+        screen.blit(font.render(f'data:{len(data)}',True,(100,100,100)),(10,40))
+        screen.blit(font.render(f'score:{score}',True,(100,100,100)),(10,70))
         data.append(frame_data(entities,keys,moves[-1]))
         pygame.display.flip()
         clock.tick(60)
