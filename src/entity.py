@@ -2,10 +2,14 @@ import pygame
 import math
 import joblib
 import random
-
+width,height=1200,720
 class Entity:
-    def __init__(self,size:tuple[int,int],radius:int,color="#dd0f0f",control:str=''):
+    def __init__(self,size:tuple[int,int],radius:int,color="#dd0f0f",control:str='',type_='c'):
         self.x,self.y=random.randint(radius,size[0]-radius),random.randint(radius,size[1]-radius)
+        if(type_ in ['r','c']):
+            self.type=type_
+        else:
+            self.type='c'
         self.vx,self.vy=0,0
         self.r=radius
         self.color=color
@@ -67,12 +71,36 @@ class Entity:
             if kb and keys[kb]: self.vx*=0.925; self.vy*=0.925
 
         elif type_ == 'auto':
-            e = entities[0]
-            if e.y < self.y: act(0, dvy=-self.speed)
-            if e.y > self.y: act(1, dvy= self.speed)
-            if e.x < self.x: act(2, dvx=-self.speed)
-            if e.x > self.x: act(3, dvx= self.speed)
+            if self.type=='c':
+                e = entities[0] #runner
+                if e.y < self.y: act(0, dvy=-self.speed)
+                if e.y > self.y: act(1, dvy= self.speed)
+                if e.x < self.x: act(2, dvx=-self.speed)
+                if e.x > self.x: act(3, dvx= self.speed)
+            else:
+                e = entities[1]
+                dx = self.x - e.x
+                dy = self.y - e.y
 
+                # if enemy is far or in corner move towards center else run bro
+                margin=self.r*3
+                if abs(dx) + abs(dy) > 700 or  self.x < self.r + margin or self.x > width - self.r - margin or    self.y < self.r + margin or self.y > height - self.r - margin:
+
+                    cx, cy =600+random.randint(-100,100), 360+random.randint(-100,100) # a little randomness brings joy
+                    tx, ty = cx - self.x, cy - self.y
+                else:
+                    tx, ty = dx, dy
+
+                # small randomness brings joy again
+                tx += random.uniform(-3, 3)
+                ty += random.uniform(-3, 3)
+
+                if abs(tx) > abs(ty):
+                    if tx > 0 and self.x < width - self.r: act(3, dvx=self.speed)
+                    elif tx < 0 and self.x > self.r:       act(2, dvx=-self.speed)
+                else:
+                    if ty > 0 and self.y < height - self.r: act(1, dvy=self.speed)
+                    elif ty < 0 and self.y > self.r:        act(0, dvy=-self.speed)
         elif type_.endswith('.pkl'):
             e0,e1 = entities[0], entities[1]
             inp = [[e0.x,e0.y,e0.vx,e0.vy,e1.x,e1.y,e1.vx,e1.vy,

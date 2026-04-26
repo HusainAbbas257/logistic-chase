@@ -9,10 +9,10 @@ width,height=screen.get_width(),screen.get_height()
 clock=pygame.time.Clock()
 
 
-def mainloop(enemy_type='auto'):
+def mainloop(enemy_type='auto',human_control='wasd'):
     score=0
-    # a note for myself first one is ai(enemy) and second one is human
-    entities:list[Entity]=[Entity((width,height),10,control='wasd'),Entity((width,height),20,color="#09ff00",control=enemy_type)]
+    # a note for myself first one is ai(enemy, catcher) and second one is human(runner)
+    entities:list[Entity]=[Entity((width,height),10,control=human_control,type_='r'),Entity((width,height),20,color="#09ff00",control=enemy_type,type_='c')]
     data=[]
     running=True
     moves=[]
