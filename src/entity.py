@@ -11,10 +11,10 @@ class Entity:
         self.color=color
         self.speed=5
         self.control=control
-        self.models=None
+        self.model=None
         if self.control.endswith('.pkl'):
-            self.models=joblib.load(control)
-        self.threshold=0.6
+            self.model=joblib.load(control)
+        self.threshold=0.4
     def update(self,keys:pygame.key.ScancodeWrapper,entities:list['Entity'],fps:float=60,width=1200,height=720):
         fps=max(fps,0.01)
         self.vx*=0.995
@@ -75,13 +75,14 @@ class Entity:
 
         elif type_.endswith('.pkl'):
             e0,e1 = entities[0], entities[1]
-            inp = [[e0.x,e0.y,e0.vx,e0.vy,e1.x,e1.y,e1.vx,e1.vy]]
-            probs = [m.predict_proba(inp)[0][1] for m in self.models]
-            for i,(p,vec) in enumerate(zip(
-                probs,
-                [(0,-self.speed),(0,self.speed),(-self.speed,0),(self.speed,0)]
-            )):
-                if p > self.threshold: act(i, dvx=vec[0], dvy=vec[1])
+            inp = [[e0.x,e0.y,e0.vx,e0.vy,e1.x,e1.y,e1.vx,e1.vy,
+                    e1.x-e0.x,e1.y-e0.y,e1.vx-e0.vx,e1.vy-e0.vy]]
+
+            probs = [p[0][1] for p in self.model.predict_proba(inp)]  # correct extraction
+
+            best_i = max(range(4), key=lambda i: probs[i])  # choose best
+            vecs = [(0,-self.speed),(0,self.speed),(-self.speed,0),(self.speed,0)]
+            act(best_i, dvx=vecs[best_i][0], dvy=vecs[best_i][1])
         else:
             raise ValueError(f'Unknown control type: {type_}')
 

@@ -1,32 +1,42 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
 import joblib
 from sklearn.pipeline import make_pipeline
 print('libs loaded...')
 # load
 df=pd.read_csv(f'data/{input('enter file name->')}.csv')
 
-x=df[["ai x", "ai y", "ai vx",'ai vy',"human x", "human y", "human vx",'human vy']].values
+df["dx"] = df["human x"] - df["ai x"]
+df["dy"] = df["human y"] - df["ai y"]
+
+df["dvx"] = df["human vx"] - df["ai vx"]
+df["dvy"] = df["human vy"] - df["ai vy"]
+
+x=df[["ai x", "ai y", "ai vx",'ai vy',"human x", "human y", "human vx",'human vy','dx','dy','dvx','dvy']].values
+df["dist"] = ((df["dx"]**2 + df["dy"]**2)**0.5)
 # for different directions
-ys=[df['up'].values,
-    df['left'].values,
-    df['down'].values,
-    df['right'].values]
+y=df[['up','left','down','right']]
 
 print('data loaded...')
 
 
 print('training...')
-models=[make_pipeline(PolynomialFeatures(degree=2),LogisticRegression()) for i in range(4)]
-for i in range(4):
-    models[i].fit(x,ys[i])
-joblib.dump(models, f"models/{input('save to ->')}.pkl")
+model = make_pipeline(StandardScaler(),MultiOutputClassifier(LogisticRegression(max_iter=500, solver='lbfgs')))
+model.fit(x,y)
 print('trained')
+joblib.dump(model, f"models/{input('save to ->')}.pkl")
+print('saved')
 
-for y,model in zip(ys,models):
-    plt.scatter(x[:,0], x[:,1], c=y)
-    print('accuracy:',model.score(x,y))
-    plt.show()
+# removed the graph just because it was pointless
+print('accuracy:',model.score(x,y))
+
+
+# cross validation
+
+scores = cross_val_score(model, x, y, cv=3)
+print(scores)
+print(scores.mean())

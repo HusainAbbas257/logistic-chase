@@ -6,4 +6,4 @@ df = pd.DataFrame(game.mainloop(input('type of opponent->')), columns=["ai x", "
 
 df.drop_duplicates(inplace=True)
 print('data retrieved->',df.shape)
-df.to_csv(f"data/{input('Enter file name to be saved in:->')}.csv", index=False)
+df.to_csv(f"data/{input('Enter file name to be saved in(ctrl+c for not saving):->')}.csv", index=False)
